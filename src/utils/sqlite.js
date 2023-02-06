@@ -1,6 +1,6 @@
 import SQLiteStorage from 'react-native-sqlite-storage';
-SQLiteStorage.DEBUG(false);
-let database_name = "*****.db";
+SQLiteStorage.DEBUG(true);
+let database_name = "Test.db";
 let database_version = "1.0";//版本号
 let database_displayname = "MySQLite";
 let database_size = -1;//-1应该是表示无限制
@@ -42,18 +42,18 @@ var SQLite = {
   //创建表
   createTable(sql) {
     db.transaction((tx) => {
-      // console.log(sql);
+      // console.log('sql',sql);
       tx.executeSql(sql
         , [], () => {
           this._successCB('成功', '创建表成功！' + sql);
           // console.log('创建了')
         }, (err) => {
-          // this._errorCB('executeSql', err, '创建表失败！'+sql);
+          this._errorCB('executeSql', err, '创建表失败！'+sql);
         });
     }, (err) => {//所有的 transaction都应该有错误的回调方法，在方法里面打印异常信息，不然你可能不会知道哪里出错了。
       this._errorCB('transaction', err);
     }, () => {
-      // this._successCB('操作成功');
+      this._successCB('操作成功');
     });
   },
   deleteTable(table_name) {
@@ -134,7 +134,7 @@ var SQLite = {
   insertDataToTable(tableName, data, callBack) {
     this.initialize();
     let sql = `INSERT OR REPLACE INTO ${tableName} (${Object.keys(data).join(',')}) VALUES (${Array(Object.keys(data).length).fill('?').join(',')})`
-    console.log(`insertDataToTable ${tableName} sql is =${sql}`)
+    // console.log(`insertDataToTable ${tableName} sql is =${sql}`)
     db.transaction((tx) => {
       tx.executeSql(
         sql,
@@ -145,7 +145,7 @@ var SQLite = {
         },
         (err) => {
           callBack && callBack(false, err);
-          this._errorCB('插入执行失败 updateSQL' + sql, err);
+          // this._errorCB('插入执行失败 updateSQL' + sql, err);
           // api.getDeviceIdSendError({"error": err, "sql": sql});
           console.log('insertDataToTable  executeSql error=', err)
         })
@@ -154,7 +154,7 @@ var SQLite = {
         console.log('insertDataToTable  transaction error=', err)
       },
       () => {
-        console.log(data);
+        // console.log(data);
         console.log(`insertDataToTable ${tableName} transaction success`)
       })
   },
@@ -162,8 +162,8 @@ var SQLite = {
     this.initialize();
     return new Promise((resolve, reject) => {
       db.transaction((tx) => {
-        tx.executeSql(sql_str, [], () => {
-          console.log("修改数据成功 execsql " + sql_str);
+        tx.executeSql(sql_str, [], (tx,results) => {
+          console.log("修改数据成功 execsql ",results);
           resolve(true)
         }, (err) => {
           console.log('修改数据 execsql', err);
@@ -234,6 +234,7 @@ var SQLite = {
               let info = results.rows.item(i);
               datas.push(info)
             }
+            console.log('results.rows.lengt');
             this._successCB('数据查询成功，一共' + results.rows.length + '条用户数据')
             // console.log('数据查询成功，一共' + results.rows.length + '条用户数据')
             var page_data = new Object()
@@ -259,173 +260,6 @@ var SQLite = {
           // console.log('selectSQL   2')
           this._errorCB('数据查询失败 selectSQL' + sql_str, err);
           var ong = { data_list: [], page_count: 0, page_num: 1, page_size: 10 }
-          resolve(ong)
-        },
-        () => {
-          // console.log('selectSQL   3')
-          // var ong ={data_list:[],page_count:0,page_num:1,page_size:10}
-          //   resolve(ong)
-        })
-    })
-
-  },
-  fetchone(that, key, sql_str, callback) {
-    if (!db) {
-      this.open();
-    }
-
-    let index_f = sql_str.indexOf(';');
-    if (index_f == -1) {
-      console.log(false, 'sql non-existent  ; ')
-    }
-    this.initialize();
-    let ong = { data: '' };
-    db.transaction((tx) => {
-      tx.executeSql(sql_str, [], (tx, results) => {
-        this._successCB('数据查询成功，一共' + results.rows.length + '条用户数据')
-        if (results.rows.length >= 1) {
-          let info = results.rows.item(0);
-          ong.data = info;
-          callback && callback(that, key, ong)
-        } else {
-          // return ong
-        }
-      },
-        (err) => {
-          this._errorCB('数据查询失败 ' + sql_str, err);
-          console.log('selectSQL   1')
-          //   return ong
-        })
-    })
-  },
-  // 查询 参数为SQL
-  async my_fetchone(sql_str) {
-    if (!db) {
-      this.open();
-    }
-
-    let index_f = sql_str.indexOf(';');
-    if (index_f == -1) {
-      console.log(false, 'sql non-existent  ; ')
-    }
-    this.initialize();
-    return new Promise((resolve, reject) => {
-      let ong = { data: '' };
-      db.transaction((tx) => {
-        tx.executeSql(sql_str, [],
-          (tx, results) => {
-            this._successCB('数据查询成功，一共' + results.rows.length + '条用户数据')
-            if (results.rows.length >= 1) {
-              let info = results.rows.item(0);
-              ong.data = info;
-              resolve(ong)
-            } else {
-              resolve(ong)
-            }
-          },
-          (err) => {
-            this._errorCB('数据查询失败 my_fetchone ' + sql_str, err);
-            console.log('selectSQL  error  1' + sql_str)
-            resolve(ong)
-          })
-      },
-        (err) => {
-          this._errorCB('数据查询失败 my_fetchone ' + sql_str, err);
-          console.log('my_fetchone selectSQL   err ' + sql_str)
-          resolve(ong)
-        },
-        () => {
-          // console.log('my_fetchone   3' + sql_str)
-          // var ong ={data_list:[],page_count:0,page_num:1,page_size:10}
-          //   resolve(ong)
-        })
-    })
-
-  },
-  async my_fetchall2(sql_str) {
-    if (!db) {
-      this.open();
-    }
-
-    let index_f = sql_str.indexOf(';');
-    if (index_f == -1) {
-      console.log(false, 'sql non-existent  ; ')
-    }
-    this.initialize();
-    return new Promise((resolve, reject) => {
-      let ong = { data: [] };
-      db.transaction((tx) => {
-        tx.executeSql(sql_str, [],
-          (tx, results) => {
-            this._successCB('数据查询成功，一共' + results.rows.length + '条用户数据')
-            if (results.rows.length >= 1) {
-              // let info = results.rows.item;
-
-              let datas = results.rows;
-              // for (let i = 0; i < results.rows.length; i++) {
-              //     let info = results.rows.item(i);
-              //     datas.push(info)
-              // }
-              ong.data = datas;
-              resolve(ong)
-            } else {
-              resolve(ong)
-            }
-          },
-          (err) => {
-            //   console.log('selectSQL   1')
-            resolve(ong)
-          })
-      },
-        (err) => {
-          resolve(ong)
-        },
-        () => {
-          // console.log('selectSQL   3')
-          // var ong ={data_list:[],page_count:0,page_num:1,page_size:10}
-          //   resolve(ong)
-        })
-    })
-
-  },
-  async my_fetchall(sql_str) {
-    if (!db) {
-      this.open();
-    }
-
-    let index_f = sql_str.indexOf(';');
-    if (index_f == -1) {
-      console.log(false, 'sql non-existent  ; ')
-    }
-    this.initialize();
-    return new Promise((resolve, reject) => {
-      let ong = { data: [] };
-      db.transaction((tx) => {
-        tx.executeSql(sql_str, [],
-          (tx, results) => {
-            this._successCB('数据查询成功，一共' + results.rows.length + '条用户数据')
-            if (results.rows.length >= 1) {
-              // let info = results.rows.item;
-
-              let datas = [];
-              for (let i = 0; i < results.rows.length; i++) {
-                let info = results.rows.item(i);
-                datas.push(info)
-              }
-              ong.data = datas;
-              resolve(ong)
-            } else {
-              resolve(ong)
-            }
-          },
-          (err) => {
-            this._errorCB('数据查询失败 my_fetchall ' + sql_str, err);
-            //   console.log('selectSQL   1')
-            resolve(ong)
-          })
-      },
-        (err) => {
-          this._errorCB('数据查询失败 my_fetchall ' + sql_str, err);
           resolve(ong)
         },
         () => {
@@ -502,47 +336,12 @@ var SQLite = {
   },
   // 数据库执行成功
   _successCB(name) {
-    // console.log("SQLiteStorage " + name + " success");
-
+    console.log("SQLiteStorage " + name + " success");
   },
   // 数据库执行失败
   _errorCB(name, err) {
     console.log("SQLiteStorage " + name);
     console.log(err);
-    this.dd("sql error: " + name + JSON.stringify(err));
   },
-  //发送钉钉消息
-  dd(msg) {
-    // dd send
-    try {
-      let myHeaders = {
-        'Accept': 'application/json', // 提交参数的数据方式,这里以json的形式
-        'Content-Type': 'application/json',
-        "Connection": "keep-Alive"
-      };
-      let data = {
-        "msgtype": "text", "text":
-        {
-          "content": "香港通知:" + msg, "at": { "atMobiles": [*******], "isAtAll": false }
-        }
-      };
-      let raw = JSON.stringify(data);
-
-      let requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: raw,
-        redirect: 'follow'
-      };
-
-      fetch("https://oapi.dingtalk.com/robot/send?access_token=******钉钉token*****", requestOptions)
-        .then(response => response.text())
-        .then(result => console.log(result))
-        .catch(error => console.log('error', error));
-    } catch (e) {
-      console.log("do nothing")
-    }
-  },
-
 }
 module.exports = SQLite;
