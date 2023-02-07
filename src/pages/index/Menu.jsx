@@ -13,7 +13,11 @@ const MenuList = [
   {
     title: 'SQLite能力演示',
     name: 'SQLiteView'
-  }
+  },
+  {
+    title: '长列表',
+    name: 'LongList'
+  },
 ]
 
 const MenuAccessoriesShowcase = ({ navigation }) => {
