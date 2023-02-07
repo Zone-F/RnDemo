@@ -163,8 +163,8 @@ var SQLite = {
     return new Promise((resolve, reject) => {
       db.transaction((tx) => {
         tx.executeSql(sql_str, [], (tx,results) => {
-          console.log("修改数据成功 execsql ",results);
-          resolve(true)
+          console.log("修改数据成功 execsql ",results.rows);
+          resolve(results.rows)
         }, (err) => {
           console.log('修改数据 execsql', err);
           this._errorCB('数据修改执行失败 updateSQL' + sql_str, err);
