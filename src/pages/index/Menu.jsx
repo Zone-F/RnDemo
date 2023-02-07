@@ -12,11 +12,11 @@ import { StyleSheet } from 'react-native';
 const MenuList = [
   {
     title: 'SQLite能力演示',
-    name: 'SQLiteView'
+    name: 'SQLite能力演示'
   },
   {
     title: '长列表',
-    name: 'LongList'
+    name: '长列表'
   },
 ]
 

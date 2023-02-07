@@ -71,8 +71,8 @@ const SqliteView = () => {
   SQLite.open();
   //   createTable();
   //     select()
-  count();
-  //   insert();
+  // count();
+    insert();
   // setTimeout(()=>{
   // for (let index = 0; index < 50000; index++) {
   //     // const element = array[index];

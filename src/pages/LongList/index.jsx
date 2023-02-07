@@ -30,7 +30,7 @@ const App = () => {
 
     const onRefresh = useCallback(async () => {
         console.log('到底了---');
-        const res = await SQLite.selectSQL('SELECT * FROM DATA;', page, 10);
+        const res = await SQLite.selectSQL('SELECT * FROM asset_info', page, 10);
         setRefreshing(true);
         console.log('res-----------', res)
         setRefreshing(false);

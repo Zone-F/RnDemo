@@ -20,8 +20,8 @@ function App() {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home">{props => <Menu {...props} />}</Stack.Screen>
         {/* <Stack.Screen name="Details" component={DetailsScreen} /> */}
-        <Stack.Screen name="SQLiteView" component={SQLiteView} />
-        <Stack.Screen name="LongList" component={LongList} />
+        <Stack.Screen name="SQLite能力演示" component={SQLiteView} />
+        <Stack.Screen name="长列表" component={LongList} />
       </Stack.Navigator>
     </NavigationContainer>
   );
