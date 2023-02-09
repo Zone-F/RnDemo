@@ -18,6 +18,18 @@ const MenuList = [
     title: '长列表',
     name: '长列表'
   },
+  {
+    title: '动画展示',
+    name: '动画展示'
+  },
+  {
+    title: 'UI展示',
+    name: 'UI展示'
+  },
+  {
+    title: 'tab页面',
+    name: 'tab页面'
+  },
 ]
 
 const MenuAccessoriesShowcase = ({ navigation }) => {
