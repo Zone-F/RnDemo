@@ -9,19 +9,25 @@ let db;
 var SQLite = {
   // 开启数据库
   open() {
-    db = SQLiteStorage.openDatabase(
-      database_name,
-      database_version,
-      database_displayname,
-      database_size,
-      () => {
-        this._successCB('open');
-        console.log('打开了');
-      },
-      (err) => {
-        this._errorCB('open', err);
-      });
-    return db;
+    return new Promise((resolve, reject) => {
+      db = SQLiteStorage.openDatabase(
+        database_name,
+        database_version,
+        database_displayname,
+        database_size,
+        () => {
+          this._successCB('open');
+          console.log('打开了');
+          resolve('success')
+        },
+        (err) => {
+          this._errorCB('open', err);
+          reject("error")
+        });
+      resolve(db)
+
+      return db;
+    })
   },
   //关闭数据库
   close() {
@@ -48,7 +54,7 @@ var SQLite = {
           this._successCB('成功', '创建表成功！' + sql);
           // console.log('创建了')
         }, (err) => {
-          this._errorCB('executeSql', err, '创建表失败！'+sql);
+          this._errorCB('executeSql', err, '创建表失败！' + sql);
         });
     }, (err) => {//所有的 transaction都应该有错误的回调方法，在方法里面打印异常信息，不然你可能不会知道哪里出错了。
       this._errorCB('transaction', err);
@@ -162,8 +168,10 @@ var SQLite = {
     this.initialize();
     return new Promise((resolve, reject) => {
       db.transaction((tx) => {
-        tx.executeSql(sql_str, [], (tx,results) => {
-          console.log("修改数据成功 execsql ",results.rows);
+        tx.executeSql(sql_str, [], (tx, results) => {
+          // console.log("修改数据成功 execsql ", results.rows);
+          // console.log("---", results.rows.item());
+          // console.log("---", results.rows.raw());
           resolve(results.rows)
         }, (err) => {
           console.log('修改数据 execsql', err);
@@ -225,6 +233,7 @@ var SQLite = {
     var limit_e = page_size
     sql_str = sql_str.substr(0, index_f) + ' limit ' + limit_s + ',' + limit_e + ';'
     this.initialize();
+    console.log('sql_str',sql_str);
     return new Promise((resolve) => {
       db.transaction((tx) => {
         tx.executeSql(sql_str, [],
@@ -263,7 +272,7 @@ var SQLite = {
           resolve(ong)
         },
         () => {
-          // console.log('selectSQL   3')
+          console.log('selectSQL   3')
           // var ong ={data_list:[],page_count:0,page_num:1,page_size:10}
           //   resolve(ong)
         })
@@ -344,4 +353,5 @@ var SQLite = {
     console.log(err);
   },
 }
+export {SQLiteStorage}
 module.exports = SQLite;
